@@ -12,17 +12,40 @@ import java.util.Map;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
+        CONSTANTS.setDiscordModel();
+        CONSTANTS.setGmailnatorModel();
+
+        DataUtils dataUtils = new DataUtils();
         DiscordUtils discordUtils = new DiscordUtils();
+        Mail mailUt = new Mail();
+        FileUtils fileUtils = new FileUtils();
 
-        String mail = "m1ain1s_42021@bk.ru";
-        String loin = "123asdd";
-        String password = "koasdasb";
-        String token = discordUtils.createAccount(mail, loin, password);
 
-        if (token != null)
-            System.out.println("Успешная регистрация: " + token);
-        else
-            System.out.println("В прорцессе регистрации произошла ошибка!");
+//        number.createDiscordNumber();
+//        number.getSms();
+
+        mailUt.createEmail();
+        String mail = mailUt.getMail();
+        String login = dataUtils.getDiscordLogin();
+        String password = dataUtils.getDiscordPassword();
+        String birthDay = dataUtils.getDiscordBirthDay();
+
+        String token =  discordUtils.createAccount(mail, login, password, birthDay);
+
+        String link = mailUt.getActuallyMessage();
+        String discordLink = mailUt.getDiscordLinkFromMessage(link);
+        System.out.println(discordLink);
+
+        System.out.println(mail + ":" + password + ":" + login + ":" + token);
+
+        System.out.println(discordUtils.verifyEmail(discordLink));
+
+        discordUtils.verifyNumber();
+
+        fileUtils.fileWriter(mail + ":" + login + ":" + password + ":" + token);
+
+
+
 
     }
 }

@@ -16,50 +16,74 @@ import java.util.Map;
 
 public class WebUtils {
 
-    private HashMap<String, String> data, header, cookie;
-    private String body;
+     HashMap<String, String> data;
+     HashMap<String, String> header;
+     HashMap<String, String> cookies;
+     HashMap<String, String> headerModel;
+     String body;
 
-    public WebUtils () {
+    public WebUtils (HashMap<String, String> headerModel) {
         data = new HashMap();
-        cookie = new HashMap();
+        cookies = new HashMap();
         header = new HashMap();
+
+        this.headerModel = headerModel;
         body = "";
 
     }
-    public String sendRequest(Connection.Method method, String url, String referer) {
-
+    private Connection.Response sendRequest(Connection.Method method, String url, String referer) {
         try {
             Connection loginForm = Jsoup.connect(url)
-                    .header("content-type", "application/json")
-                    .header("scheme", "https")
-                    .header("accept-language", "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
-                    .header("authority", "discord.com")
-                    .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-                    .header("sec-ch-ua", "\" Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"91\", \"Chromium\";v=\"91\"")
-                    .header("sec-ch-ua-mobile", "?0")
-                    .header("referer", referer)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.9002 Chrome/83.0.4103.122 Electron/9.3.5 Safari/537.36")
+                    .referrer(referer)
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
                     .method(method)
                     .timeout(30000);
+            loginForm.headers(headerModel);
 
             if (!data.isEmpty())
                 loginForm.data(data);
-            if(!cookie.isEmpty())
-                loginForm.cookies(cookie);
+            if(!cookies.isEmpty())
+                loginForm.cookies(cookies);
             if (!header.isEmpty())
                 loginForm.headers(header);
             if (!body.isEmpty())
                 loginForm.requestBody(body);
 
-            clear();
-            return loginForm.execute().parse().text();
+            return loginForm.execute();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        clear();
+        return null;
+    }
+
+    public Connection.Response getRequestCon(Connection.Method method, String url, String referer) {
+        return sendRequest(method, url, referer);
+    }
+
+    public String getTextCon(Connection.Method method, String url, String referer) {
+        try {
+            Connection.Response response = sendRequest(method, url, referer);
+            if (response != null) {
+                return response.parse().text();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Document getParsedCon(Connection.Method method, String url, String referer) {
+        try {
+            Document response = sendRequest(method, url, referer).parse();
+            if (response != null) {
+                return response;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -108,7 +132,7 @@ public class WebUtils {
     }
 
     public void addCookie(String key, String value) {
-        cookie.put(key, value);
+        cookies.put(key, value);
     }
 
     public void addHeader(String key, String value){
@@ -126,7 +150,7 @@ public class WebUtils {
     public void clear() {
         data.clear();
         header.clear();
-        cookie.clear();
+        cookies.clear();
         body = "";
     }
 }
