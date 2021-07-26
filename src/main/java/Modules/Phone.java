@@ -1,6 +1,11 @@
+package Modules;
+
+import Data.CONSTANTS;
+import Utils.Logger;
+import Utils.WebUtils;
 import org.jsoup.Connection;
 
-public class Number {
+public class Phone {
     WebUtils webUtils;
     String[] data;
     public String createDiscordNumber() {
@@ -18,24 +23,21 @@ public class Number {
     }
 
     public String getCode() {
+        Logger.logFuncStart();
         String response;
-
         response = webUtils.getTextCon(Connection.Method.POST,
                 "http://cheapsms.pro/stubs/handler_api.php?api_key=" + CONSTANTS.numberToken + "=setStatus&status=1&id=" + data[1],
                 "https://google.com");
-
         while (true) {
             response = webUtils.getTextCon(Connection.Method.POST,
                     "http://cheapsms.pro/stubs/handler_api.php?api_key=" + CONSTANTS.numberToken + "&action=getStatus&id=" + data[1],
                     "https://google.com");
-
             System.out.println(response);
-
             if(!response.contains("WAIT")) {
-                return response.replaceAll("[^\\d.]", "");
+                String code = response.replaceAll("[^\\d.]", "");
+                Logger.logFuncEnd(code);
+                return code;
             }
-
-
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -43,5 +45,4 @@ public class Number {
             }
         }
     }
-
 }

@@ -1,3 +1,5 @@
+package Utils;
+
 import java.util.Random;
 import java.util.SplittableRandom;
 
@@ -6,7 +8,7 @@ public class DataUtils {
     private final int[] max = {2002, 12, 28};
 
     private SplittableRandom splittableRandom;
-    DataUtils() {
+    public DataUtils() {
         splittableRandom = new SplittableRandom();
     }
 

@@ -3,7 +3,8 @@ package Data;
 public enum Warnings {
     EMAIL_ALREADY_REGISTERED("Email уже зарегестрирован"),
     USERNAME_TOO_MANY_USERS("Login уже зарегестрирован"),
-    BASE_TYPE_MIN_LENGTH("Пароль слишком короткий");
+    BASE_TYPE_MIN_LENGTH("Пароль слишком короткий"),
+    limited("Слишком много запросов");
 
     private String title;
 

@@ -1,18 +1,9 @@
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+package Utils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import sun.invoke.empty.Empty;
-
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 public class WebUtils {
 
@@ -21,6 +12,7 @@ public class WebUtils {
      HashMap<String, String> cookies;
      HashMap<String, String> headerModel;
      String body;
+     boolean block = false;
 
     public WebUtils (HashMap<String, String> headerModel) {
         data = new HashMap();
@@ -51,8 +43,11 @@ public class WebUtils {
             if (!body.isEmpty())
                 loginForm.requestBody(body);
 
-            return loginForm.execute();
+            Connection.Response resp = loginForm.execute();
+            if(!block)
+                clear();
 
+            return resp;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -87,48 +82,11 @@ public class WebUtils {
         return null;
     }
 
-    private JsonNode getValue (String json, String key, boolean debug) {
-        JsonFactory factory = new JsonFactory();
-        ObjectMapper mapper = new ObjectMapper(factory);
-        JsonNode rootNode = null;
-        try {
-            rootNode = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        Iterator<Map.Entry<String,JsonNode>> fieldsIterator = rootNode.fields();
-        JsonNode value = null;
-        while (fieldsIterator.hasNext()) {
-            Map.Entry<String,JsonNode> field = fieldsIterator.next();
-            if (debug)
-                System.out.println("Key: " + field.getKey() + " Value: " + field.getValue());
-            if (field.getKey().equalsIgnoreCase(key)) {
-                //System.out.println(field.getValue().textValue());
-                if (field.getValue().isArray())
-                    value = field.getValue().get(0);
-                else {
-                    value = field.getValue();
-                }
-            }
-        }
-        return value;
-    }
-
-    public String getTextValue(String json, String key, boolean debug) {
-        JsonNode response = getValue(json, key, debug);
-        if (response != null)
-            return response.textValue();
-        else
-            return null;
-    }
-
-    public String getStringValue(String json, String key, boolean debug) {
-        JsonNode response = getValue(json, key, debug);
-        if (response != null)
-            return response.toString();
-        else
-            return null;
+    public boolean clearBlocker() {
+        block = !block;
+        if (!block)
+            clear();
+        return block;
     }
 
     public void addCookie(String key, String value) {
