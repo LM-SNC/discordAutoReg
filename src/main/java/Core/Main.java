@@ -7,7 +7,7 @@ import Utils.FileUtils;
 import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         CONSTANTS.setDiscordModel();
         CONSTANTS.setGmailnatorModel();
 
@@ -15,11 +15,15 @@ public class Main {
 
         DiscordAccountsManager discordAccountsManager = new DiscordAccountsManager();
 
+
         String login = dataUtils.getDiscordLogin();
         String password = dataUtils.getDiscordPassword();
 
-        discordAccountsManager.createAccount(login, password);
+        if (!discordAccountsManager.createAccount(login, password))
+            return;
+        Thread.sleep(5000);
         discordAccountsManager.verifyMail();
+        Thread.sleep(5000);
         discordAccountsManager.verifyNumber();
 
        //fileUtils.fileWriter(mail + ":" + login + ":" + password);

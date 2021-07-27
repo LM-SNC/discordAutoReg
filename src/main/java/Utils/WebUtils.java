@@ -2,6 +2,8 @@ package Utils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import sun.rmi.runtime.Log;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -23,7 +25,7 @@ public class WebUtils {
         body = "";
 
     }
-    private Connection.Response sendRequest(Connection.Method method, String url, String referer) {
+    private Connection.Response sendRequest(Connection.Method method, String url, String referer, boolean ... debug) {
         try {
             Connection loginForm = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.9002 Chrome/83.0.4103.122 Electron/9.3.5 Safari/537.36")
@@ -47,6 +49,18 @@ public class WebUtils {
             if(!block)
                 clear();
 
+            if (debug.length > 0) {
+                if (debug[0]) {
+                    Logger.logInfo("Начинаем дебажить запрос");
+                    Logger.logInfo(resp.body());
+                    Logger.logInfo(resp.statusMessage());
+                    Logger.logInfo(resp.parse().body().toString());
+                    Logger.logInfo(resp.parse().title());
+                    Logger.logInfo(resp.parse().text());
+                    Logger.logInfo(resp.parse().html());
+                }
+            }
+
             return resp;
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,13 +68,13 @@ public class WebUtils {
         return null;
     }
 
-    public Connection.Response getRequestCon(Connection.Method method, String url, String referer) {
-        return sendRequest(method, url, referer);
+    public Connection.Response getRequestCon(Connection.Method method, String url, String referer, boolean ... debug) {
+        return sendRequest(method, url, referer, debug);
     }
 
-    public String getTextCon(Connection.Method method, String url, String referer) {
+    public String getTextCon(Connection.Method method, String url, String referer, boolean ... debug) {
         try {
-            Connection.Response response = sendRequest(method, url, referer);
+            Connection.Response response = sendRequest(method, url, referer, debug);
             if (response != null) {
                 return response.parse().text();
             }
@@ -70,9 +84,9 @@ public class WebUtils {
         return null;
     }
 
-    public Document getParsedCon(Connection.Method method, String url, String referer) {
+    public Document getParsedCon(Connection.Method method, String url, String referer, boolean ... debug) {
         try {
-            Document response = sendRequest(method, url, referer).parse();
+            Document response = sendRequest(method, url, referer, debug).parse();
             if (response != null) {
                 return response;
             }

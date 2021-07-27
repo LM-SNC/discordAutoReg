@@ -4,6 +4,7 @@ import Data.CONSTANTS;
 import Data.Warnings;
 import Modules.Phone;
 import org.jsoup.Connection;
+import sun.rmi.runtime.Log;
 
 public class DiscordUtils {
     WebUtils webUtils;
@@ -63,7 +64,7 @@ public class DiscordUtils {
         else {
             for (Warnings error : Warnings.values()) {
                 if (response.contains(error.name())) {
-                    Logger.logInfo("Невозможно создать аккаунт: " + error.getTitle());
+                    Logger.logError("Невозможно создать аккаунт: " + error.getTitle());
                     //System.out.println("Невозможно создать аккаунт: " + error.getTitle());
                     return false;
                 }
@@ -134,9 +135,12 @@ public class DiscordUtils {
         Logger.logFuncStart();
         webUtils.addBody("{\"phone\": \"" + phoneNumber + "\"}");
         webUtils.addHeader("authorization", accountToken);
-        Logger.logFuncEnd(webUtils.getTextCon(Connection.Method.POST,
+        String response = webUtils.getTextCon(Connection.Method.POST,
                 "https://discord.com/api/v9/users/@me/phone",
-                "https://discord.com/channels/@me"));
+                "https://discord.com/channels/@me", true);
+        if (response == null || response.isEmpty())
+            Logger.logError("Empty response");
+        Logger.logFuncEnd(response);
     }
 
     public String sendCodeRequest(String phoneNumber, String code, String accountToken) {
