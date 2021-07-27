@@ -49,21 +49,27 @@ public class WebUtils {
             if(!block)
                 clear();
 
-            if (debug.length > 0) {
-                if (debug[0]) {
-                    Logger.logInfo("Начинаем дебажить запрос");
-                    Logger.logInfo(resp.body());
-                    Logger.logInfo(resp.statusMessage());
-                    Logger.logInfo(resp.parse().body().toString());
-                    Logger.logInfo(resp.parse().title());
-                    Logger.logInfo(resp.parse().text());
-                    Logger.logInfo(resp.parse().html());
-                }
-            }
+//            if (debug.length > 0) {
+//                if (debug[0]) {
+//                    Logger.logInfo("Начинаем дебажить запрос");
+//                    Logger.logInfo(resp.body());
+//                    Logger.logInfo(resp.statusMessage());
+//                    Logger.logInfo(resp.parse().body().toString());
+//                    Logger.logInfo(resp.parse().title());
+//                    Logger.logInfo(resp.parse().text());
+//                    Logger.logInfo(resp.parse().html());
+//                }
+//            }
 
             return resp;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            if (debug.length > 0)
+                if (debug[0])
+                    e.printStackTrace();
+                else
+                    Logger.logError("Exception!");
+            else
+                Logger.logError("Exception!");
         }
         return null;
     }
@@ -85,14 +91,22 @@ public class WebUtils {
     }
 
     public Document getParsedCon(Connection.Method method, String url, String referer, boolean ... debug) {
+        Logger.logFuncStart();
         try {
             Document response = sendRequest(method, url, referer, debug).parse();
             if (response != null) {
+                Logger.logFuncEnd();
                 return response;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            if (debug.length > 0)
+                if (debug[0])
+                    e.printStackTrace();
+            else
+                Logger.logError("Exception");
         }
+        Logger.logError("NULL");
+        Logger.logFuncEnd();
         return null;
     }
 
