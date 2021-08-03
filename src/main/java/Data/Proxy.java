@@ -9,13 +9,28 @@ import org.jsoup.select.Elements;
 
 public class Proxy {
     WebUtils webUtils = new WebUtils(CONSTANTS.defaultModel);
+    String proxyType = "";
 
-    public void getProxy(String type) {
+    public Proxy(String proxyType) {
+        this.proxyType = proxyType;
+    }
+
+    public void setProxy() {
         Logger.logFuncStart();
-        String proxyPage = "https://hidemy.name/ru/proxy-list/?type=" + type + "#list";
-        Elements proxyList = webUtils.getParsedCon(Connection.Method.GET,
+        if (proxyType.isEmpty() || proxyType == null) {
+            Logger.logError("Invalid proxy type");
+            return;
+        }
+        String proxyPage = "https://hidemy.name/ru/proxy-list/?type=" + proxyType + "#list";
+        Document response = webUtils.getParsedCon(Connection.Method.GET,
                 proxyPage,
-                "https://google.com/").getElementsByTag("tbody").get(0).getElementsByTag("tr");
+                "https://google.com/",
+                true);
+        if (response == null) {
+            Logger.logError("Null");
+            return;
+        }
+        Elements proxyList = response.getElementsByTag("tbody").get(0).getElementsByTag("tr");
         Logger.logInfo("Start gathering free proxy...");
         for (Element element : proxyList) {
             Elements td = element.getElementsByTag("td");
@@ -23,16 +38,20 @@ public class Proxy {
             String port = td.get(1).text();
             System.setProperty("https.proxyHost", ip);
             System.setProperty("https.proxyPort", port);
-
-            Document response = webUtils.getParsedCon(Connection.Method.POST,
+            response = webUtils.getParsedCon(Connection.Method.POST,
                     "https://discord.com/register",
-                    "https://discord.com/");
+                    "https://discord.com/",
+                    true);
             if (response != null) {
                 Logger.logInfo("Success - " + ip + ":" + port);
-                Logger.logFuncEnd();
                 break;
             }
         }
         Logger.logFuncEnd();
+    }
+
+    public void resetProxy() {
+        System.setProperty("https.proxyHost", "");
+        System.setProperty("https.proxyPort", "");
     }
 }

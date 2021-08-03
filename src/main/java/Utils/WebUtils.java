@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import sun.rmi.runtime.Log;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 
 public class WebUtils {
@@ -66,8 +67,6 @@ public class WebUtils {
             if (debug.length > 0)
                 if (debug[0])
                     e.printStackTrace();
-                else
-                    Logger.logError("Exception!");
             else
                 Logger.logError("Exception!");
         }
@@ -79,14 +78,22 @@ public class WebUtils {
     }
 
     public String getTextCon(Connection.Method method, String url, String referer, boolean ... debug) {
+        Logger.logFuncStart();
         try {
             Connection.Response response = sendRequest(method, url, referer, debug);
             if (response != null) {
+                Logger.logFuncEnd();
                 return response.parse().text();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            if (debug.length > 0)
+                if (debug[0])
+                    e.printStackTrace();
+                else
+                    Logger.logError("Exception");
         }
+        Logger.logError("Null");
+        Logger.logFuncEnd();
         return null;
     }
 
