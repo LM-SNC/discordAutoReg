@@ -5,17 +5,19 @@ import org.jsoup.nodes.Document;
 import sun.rmi.runtime.Log;
 
 import java.io.IOException;
+import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 
 public class WebUtils {
-
-     HashMap<String, String> data;
-     HashMap<String, String> header;
-     HashMap<String, String> cookies;
-     HashMap<String, String> headerModel;
-     String body;
-     boolean block = false;
+    HashMap<String, String> data;
+    HashMap<String, String> header;
+    HashMap<String, String> cookies;
+    HashMap<String, String> headerModel;
+    String body;
+    String proxyIp;
+    String proxyPort;
+    boolean block = false;
 
     public WebUtils (HashMap<String, String> headerModel) {
         data = new HashMap();
@@ -24,8 +26,10 @@ public class WebUtils {
 
         this.headerModel = headerModel;
         body = "";
-
+        proxyPort = "";
+        proxyIp = "";
     }
+
     private Connection.Response sendRequest(Connection.Method method, String url, String referer, boolean ... debug) {
         try {
             Connection loginForm = Jsoup.connect(url)
@@ -45,23 +49,11 @@ public class WebUtils {
                 loginForm.headers(header);
             if (!body.isEmpty())
                 loginForm.requestBody(body);
-
+            if (!proxyIp.isEmpty())
+                loginForm.proxy(proxyIp,Integer.parseInt(proxyPort));
             Connection.Response resp = loginForm.execute();
             if(!block)
                 clear();
-
-//            if (debug.length > 0) {
-//                if (debug[0]) {
-//                    Logger.logInfo("Начинаем дебажить запрос");
-//                    Logger.logInfo(resp.body());
-//                    Logger.logInfo(resp.statusMessage());
-//                    Logger.logInfo(resp.parse().body().toString());
-//                    Logger.logInfo(resp.parse().title());
-//                    Logger.logInfo(resp.parse().text());
-//                    Logger.logInfo(resp.parse().html());
-//                }
-//            }
-
             return resp;
         } catch (Exception e) {
             if (debug.length > 0)
@@ -69,8 +61,8 @@ public class WebUtils {
                     e.printStackTrace();
             else
                 Logger.logError("Exception!");
+            return null;
         }
-        return null;
     }
 
     public Connection.Response getRequestCon(Connection.Method method, String url, String referer, boolean ... debug) {
@@ -134,6 +126,11 @@ public class WebUtils {
 
     public void addData(String key, String value) {
         data.put(key, value);
+    }
+
+    public void addProxy(String ip, String port) {
+        proxyIp = ip;
+        proxyPort = port;
     }
 
     public void addBody(String body) {

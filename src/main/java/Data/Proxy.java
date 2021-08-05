@@ -15,11 +15,11 @@ public class Proxy {
         this.proxyType = proxyType;
     }
 
-    public void setProxy() {
+    public String getProxy() {
         Logger.logFuncStart();
         if (proxyType.isEmpty() || proxyType == null) {
             Logger.logError("Invalid proxy type");
-            return;
+            return "";
         }
         String proxyPage = "https://hidemy.name/ru/proxy-list/?type=" + proxyType + "#list";
         Document response = webUtils.getParsedCon(Connection.Method.GET,
@@ -28,7 +28,7 @@ public class Proxy {
                 true);
         if (response == null) {
             Logger.logError("Null");
-            return;
+            return "";
         }
         Elements proxyList = response.getElementsByTag("tbody").get(0).getElementsByTag("tr");
         Logger.logInfo("Start gathering free proxy...");
@@ -36,18 +36,19 @@ public class Proxy {
             Elements td = element.getElementsByTag("td");
             String ip = td.get(0).text();
             String port = td.get(1).text();
-            System.setProperty("https.proxyHost", ip);
-            System.setProperty("https.proxyPort", port);
+            webUtils.addProxy(ip, port);
             response = webUtils.getParsedCon(Connection.Method.POST,
                     "https://discord.com/register",
                     "https://discord.com/",
                     true);
             if (response != null) {
                 Logger.logInfo("Success - " + ip + ":" + port);
-                break;
+                return ip + ":" + port;
             }
         }
         Logger.logFuncEnd();
+        return "";
+
     }
 
     public void resetProxy() {

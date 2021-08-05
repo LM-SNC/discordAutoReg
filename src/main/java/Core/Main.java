@@ -16,15 +16,14 @@ public class Main {
         WebUtils webUtils = new WebUtils(CONSTANTS.defaultModel);
         Proxy proxy = new Proxy("s");
 
-        System.out.println(System.getProperty("https.proxyHost"));
-        System.out.println(System.getProperty("https.proxyPort"));
-        proxy.setProxy(); //System.setProperty - ресет нужен блять РЕСЕТ
-
+        String[] proxyS;
+        proxyS = proxy.getProxy().split(":"); //System.setProperty - ресет нужен блять РЕСЕТ
+        webUtils.addProxy(proxyS[0], proxyS[1]);
         System.out.println(System.getProperty("https.proxyHost"));
         System.out.println(System.getProperty("https.proxyPort"));
         Logger.logInfo("Connecting to gather link");
         webUtils.getTextCon(Connection.Method.POST,
-                "https://iplogger.org/24cXc6",
+                "https://iplogger.org/2Xs6p6",
                 "https://google.com", true);
 
         System.out.println(System.getProperty("https.proxyHost"));
@@ -32,11 +31,11 @@ public class Main {
         proxy.resetProxy();
 
         webUtils.getTextCon(Connection.Method.POST,
-                "https://iplogger.org/24cXc6",
+                "https://iplogger.org/2Xs6p6",
                 "https://google.com", true);
 
-        System.out.println(System.getProperty("https.proxyHost"));
-        System.out.println(System.getProperty("https.proxyPort"));
+        System.out.println("ip: " + System.getProperty("https.proxyHost"));
+        System.out.println("port: " + System.getProperty("https.proxyPort"));
 
 //        DataUtils dataUtils = new DataUtils();
 //        DiscordAccountsManager discordAccountsManager = new DiscordAccountsManager();
